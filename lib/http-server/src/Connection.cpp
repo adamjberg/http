@@ -6,6 +6,7 @@
 #include "HttpRequest.h"
 #include "HttpParser.h"
 
+#include <chrono>
 #include <iostream>
 
 using namespace boost::asio;
@@ -47,10 +48,14 @@ void Connection::do_read(yield_context yield) {
 
 void Connection::handle_new_connection(yield_context yield) {
     while(socket.is_open()) {
-        std::cout << "start connection\n";
+        auto start = std::chrono::high_resolution_clock::now();
+
         do_read(yield);
         do_write(yield);
         socket.close();
-        std::cout << "end connection\n";
+
+        auto end = std::chrono::high_resolution_clock::now();
+        auto diff = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+        std::cout << diff.count();
     }
 }
